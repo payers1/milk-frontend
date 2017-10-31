@@ -11,7 +11,7 @@ import {
   verifyMilkOutage,
   recordGotMilk,
   verifyGotMilk,
-  getContractValues,
+  getContractValues
 } from './api';
 
 import { Grid, Container } from 'semantic-ui-react'
@@ -56,14 +56,14 @@ class Main extends Component {
         }
       break;
 
-      case 'MilkOutageUnverfied':
+      case 'MilkOutageUnverified':
         nextTask = {
-          title: 'VERIFY MILK',
+          title: 'VERIFY MILK OUTAGE',
           action: verifyMilkOutage.bind(null, account, contract, web3)
         }
       break;
 
-      case 'MilkOutageVerfied':
+      case 'MilkOutageVerified':
         nextTask = {
           title: 'BUY MILK',
           action: recordGotMilk.bind(null, account, contract, web3, unverifiedMilkBarCode)

@@ -4,8 +4,8 @@ const logError = e => console.log(e);
 
 const STAGES = {
   0: 'MilkInFullSupply',
-  1: 'MilkOutageUnverfied',
-  2: 'MilkOutageVerfied',
+  1: 'MilkOutageUnverified',
+  2: 'MilkOutageVerified',
   3: 'MilkPurchasedUnverified'
 }
 
