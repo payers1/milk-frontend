@@ -18,9 +18,9 @@ html {
 .tasks {
   background: white;
   border: 1px solid #DCE1E5;
-  height: 120px;
   text-align: center;
   text-transform: uppercase;
+  padding: 20px;
 }
 
 .register-form {
