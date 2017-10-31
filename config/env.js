@@ -21,7 +21,9 @@ function getClientEnvironment(publicUrl) {
       // This should only be used as an escape hatch. Normally you would put
       // images into the `src` and `import` them in code to get their paths.
       'PUBLIC_URL': JSON.stringify(publicUrl),
-      'API': JSON.stringify('https://big-cut.glitch.me')
+      // 'API': JSON.stringify('https://big-cut.glitch.me')
+      'API': process.env.NODE_ENV === 'development' ? JSON.stringify('//0.0.0.0:3000/api')
+                                                    : JSON.stringify('/api')
     });
   return {'process.env': processEnv};
 }
