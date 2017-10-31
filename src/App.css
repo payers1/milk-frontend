@@ -1,0 +1,31 @@
+html {
+  font-family: helvetica;
+}
+
+.App {
+  background: #F4F7FA;
+  height: 98vh;
+}
+
+.metric {
+  height: 250px;
+  background: white;
+  text-transform: uppercase;
+  display: flex;
+  justify-content: center;
+}
+
+.tasks {
+  background: white;
+  border: 1px solid #DCE1E5;
+  height: 120px;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.register-form {
+  height: 92vh;
+  max-width: 500px;
+  margin: auto;
+  padding-top: 15%;
+}
