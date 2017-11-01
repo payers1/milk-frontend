@@ -9,15 +9,12 @@ import Main from './Main';
 import Register from './Register';
 
 class App extends Component {
-  constructor(props) {
-    super(props)
-    this.state = {
+    state = {
       loading: true,
       userAuth: false,
       account: null,
       web3: {}
     }
-  }
 
   componentWillMount() {
     return getWeb3

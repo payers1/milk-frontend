@@ -3,14 +3,12 @@ import RForm from './components/RegisterForm'
 import { registerUser } from './api';
 
 class Register extends Component {
-  constructor(props) {
-    super(props)
-    this.state = {
+  state = {
       first_name: '',
       email: '',
       submitted: false
     }
-  }
+
   handleChange = (e) => {
     this.setState({
       [e.target.name]: e.target.value
