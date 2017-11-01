@@ -15,14 +15,6 @@ html {
   justify-content: center;
 }
 
-.tasks {
-  background: white;
-  border: 1px solid #DCE1E5;
-  text-align: center;
-  text-transform: uppercase;
-  padding: 20px;
-}
-
 .register-form {
   height: 92vh;
   max-width: 500px;
