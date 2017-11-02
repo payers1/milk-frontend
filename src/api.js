@@ -57,14 +57,16 @@ export const getContractValues = (contract, account, coin) => {
     contractAsync.milkOutageNotifierAsync(),
     contractAsync.milkOutageVerifierAsync(),
     coinAsync(account),
-    contractAsync.stageAsync()
+    contractAsync.stageAsync(),
+    P.promisify(coin.totalSupply)()
   ])
-  .spread((outOfMilk, milkOutageVerified, notifier, verifier, coin2, stage) => {
+  .spread((outOfMilk, milkOutageVerified, notifier, verifier, coin2, stage, totalSupply) => {
     return {
       outOfMilk,
       milkOutageVerified,
       coinBalance: coin2.toString(),
-      stage: STAGES[stage.toString()]
+      stage: STAGES[stage.toString()],
+      totalSupply: totalSupply.toString()
     }
   })
 }
