@@ -17,11 +17,8 @@ import {
 import { Grid, Container } from 'semantic-ui-react'
 
 class Main extends Component {
-  constructor(props) {
-    super(props)
-    this.state = {
-      nextTask: {}
-    }
+  state = {
+    nextTask: {}
   }
 
   componentWillMount() {
