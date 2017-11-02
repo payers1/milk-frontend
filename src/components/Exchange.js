@@ -1,83 +1,96 @@
-import React from 'react'
-import { Table, Button, Input, Dropdown, Form } from 'semantic-ui-react'
-const { format } = require('d3-format')
+import React, { Component } from 'react'
+import { Table, Button, Form, Segment } from 'semantic-ui-react'
+import { getSellPrice } from '../api'
+import P from 'bluebird'
 
-const Exchange = () => {
-  const usd = 1.00
-  const eth = 297.53
-  const ltc = 56.07
-  const btc = 5964.99
+const options = ['USD', 'ETH', 'LTC', 'BTC']
 
-const getExchange = (rate) => {
-  return 1 / ((rate + 2.00) * 4)
-}
+const selectOptions = options.map(opt => ({key: opt, text: opt, value: opt}))
 
-const formatCents = (inCents) => format("18")(inCents)
-
-const getUsdExchange = () => usd / 4
-const getEthExchange = () => formatCents(getExchange(eth))
-const getLtcExchange = () => formatCents(getExchange(ltc))
-const getBtcExchange = () => formatCents(getExchange(btc))
-
-const currencies = [{
-  currency: 'USD',
-  getExchange: getUsdExchange()
-}, {
-  currency: 'ETH',
-  getExchange: getEthExchange()
-}, {
-  currency: 'LTC',
-  getExchange: getLtcExchange()
-}, {
-  currency: 'BTC',
-  getExchange: getBtcExchange()
-}]
-
-const options = [{
-  key: 'USD',
-  text: 'USD',
-  value: 'USD'
-}, {
-  key: 'ETH',
-  text: 'ETH',
-  value: 'ETH'
-}, {
-  key: 'LTC',
-  text: 'LTC',
-  value: 'LTC'
-}]
-
-const CurrencyRow = ({s}) => (
+const CurrencyRow = ({symbol, exchangeRate, price}) => (
   <Table.Row>
-    <Table.Cell> {s.currency} </Table.Cell>
-    <Table.Cell> {s.getExchange} </Table.Cell>
+    <Table.Cell> {symbol} </Table.Cell>
+    <Table.Cell> {exchangeRate} </Table.Cell>
+    <Table.Cell> {price} </Table.Cell>
   </Table.Row>
 )
 
-  return (
+class Exchange extends Component {
+
+  state = {
+    USD: 1,
+    ETH: 1,
+    LTC: 1,
+    BTC: 1,
+    amountToSell: 0,
+    desiredCurrency: 'USD'
+  }
+
+  componentWillMount() {
+    return P.all([
+      getSellPrice('BTC'),
+      getSellPrice('ETH'),
+      getSellPrice('LTC')
+    ])
+    .map((response) => response.json())
+    .each(({data}) => this.setState({ [data.base]: (parseFloat(data.amount)) }))
+  }
+
+  getExchangeForCurrency = (symbol) => {
+    if (symbol === 'USD') {
+      return 0.25
+    }
+    const price = this.state[symbol]
+    return 1 / ((price) * 4)
+  }
+
+  onChange = (e) => {
+    this.setState({
+      [e.target.name]: e.target.value
+    })
+  }
+
+  handleSelect = (event, data) => {
+    this.setState({
+      desiredCurrency: data.value
+    })
+  }
+
+  getNumber = () => {
+    const n = this.state.amountToSell * this.getExchangeForCurrency(this.state.desiredCurrency)
+    return n
+  }
+
+  render() {
+    return (
     <div>
-      <style jsx>{``} </style>
       <h1> EXCHANGE RATES </h1>
       <Table celled>
         <Table.Header>
           <Table.HeaderCell></Table.HeaderCell>
-          <Table.HeaderCell>1 BDC</Table.HeaderCell>
+          <Table.HeaderCell width={6}>1 BDC</Table.HeaderCell>
+          <Table.HeaderCell width={6}>1 USD</Table.HeaderCell>
         </Table.Header>
         <Table.Body>
-          {currencies.map((s) => <CurrencyRow s={s} />)}
+          {options.map((currencySymbol) => <CurrencyRow
+            key={currencySymbol}
+            exchangeRate={this.getExchangeForCurrency(currencySymbol)}
+            price={this.state[currencySymbol]}
+            symbol={currencySymbol} />)}
         </Table.Body>
       </Table>
-      <Form>
+      <Form onChange={this.onChange}>
         <Form.Group widths='equal'>
-          <Form.Input label='# OF COINS TO SELL:'/>
-          <Form.Input label='Acct #:' placeholder='Enter account #' />
-          <Form.Select label='Desired Currency' button basic defaultValue='USD' options={options}/>
+          <Form.Input name="amountToSell" type="number" max="100" label='# of BDC to sell'/>
+          <Form.Select name="desiredCurrency" onChange={this.handleSelect} label='Desired Currency' button basic defaultValue='USD' options={selectOptions}/>
+          <Form.Input name="accountNumber" label='Deposit to' placeholder='Enter account #' />
         </Form.Group>
-
+        <Segment padded textAlign='center'> {this.state.amountToSell} BDC = {this.getNumber()} {this.state.desiredCurrency} </Segment>
         <Button type='submit'>Submit</Button>
+
       </Form>
     </div>
   )
-}
+}}
 
 export default Exchange
