@@ -85,3 +85,8 @@ export const registerUser = (address, firstName, email) => {
     })
   });
 }
+export const getSellPrice = (currency) => {
+  return fetch(`https://api.coinbase.com/v2/prices/${currency}-USD/sell`, {
+    headers: { 'CB-VERSION': '2015-04-08' }
+  })
+}
