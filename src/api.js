@@ -1,6 +1,7 @@
 import P from 'bluebird';
 
-const logError = e => console.log(e);
+const logError = e => console.log(e)
+const logComplete = (block, message) => console.log(block, message)
 
 const STAGES = {
   0: 'MilkInFullSupply',
@@ -22,28 +23,28 @@ const getTx = (txHash, web3) => {
 export const recordMilkOutage = (account, contract, web3) => {
   return P.promisify(contract.recordMilkOutage)({from: account})
     .then((txHash) => getTx(txHash, web3))
-    .then((a) => console.log('done recording milk outage', a))
+    .then(logComplete.bind(null, 'recorded milk outage'))
     .catch(logError)
 }
 
 export const verifyMilkOutage = (account, contract, web3) => {
   return P.promisify(contract.verifyMilkOutage)({from: account})
     .then(tx => getTx(tx, web3))
-    .then((a) => console.log('done verifying milk outage', a))
+    .then(logComplete.bind(null, 'verified milk outage'))
     .catch(logError)
 }
 
 export const recordGotMilk = (account, contract, web3, code) => {
   return P.promisify(contract.recordGotMilk)(code || 1, {from: account})
     .then(tx => getTx(tx, web3))
-    .then((a) => console.log('done recording got milk', a))
+    .then(logComplete.bind(null, 'recorded milk purchased'))
     .catch(logError)
 }
 
 export const verifyGotMilk = (account, contract, web3, code) => {
   return P.promisify(contract.verifyGotMilk)(code || 1, {from: account})
     .then(tx => getTx(tx, web3))
-    .then(a => console.log('done recording verify milk', a))
+    .then(logComplete.bind(null, 'milk purchase verified'))
     .catch(logError)
 }
 
