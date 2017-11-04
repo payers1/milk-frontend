@@ -1,39 +1,33 @@
-import React, { Component } from 'react'
-import RForm from './components/RegisterForm'
+import React from 'react'
 import { registerUser } from './api';
+import { compose, withState, withHandlers } from 'recompose'
+import { Button, Form } from 'semantic-ui-react'
 
-class Register extends Component {
-  state = {
-      first_name: '',
-      email: '',
-      submitted: false
+const enhance = compose(
+  withState('state', 'setState', {}),
+  withHandlers({
+    onChange: props => event => {
+      props.setState({
+        ...props.state,
+        [event.target.name]: event.target.value
+      })
+    },
+    onSubmit: props => event => {
+      event.preventDefault()
+      registerUser()
     }
+  })
+)
 
-  handleChange = (e) => {
-    this.setState({
-      [e.target.name]: e.target.value
-    })
-  }
+const Register = ({onSubmit, onChange, account}) => (
+  <div className='register-form'>
+    <Form onSubmit={onSubmit}>
+      <Form.Input name='first_name' onChange={onChange} label='First name' placeholder='First Name' />
+      <Form.Input name='email' onChange={onChange} label='email' placeholder='Email' />
+      <Form.Input label='Account' readOnly value={account} />
+      <Button type='submit'>REGISTER</Button>
+    </Form>
+  </div>
+)
 
-  handleSubmit = async (e) => {
-    e.preventDefault()
-    await registerUser(this.props.account, this.state.first_name, this.state.email)
-    this.setState({
-      first_name: '',
-      email: '',
-      submitted: true
-    })
-  }
-
-  render() {
-    const { submitted } = this.state;
-    return submitted ? <h1> Thanks </h1>
-                     : <div className="register-form">
-                        <RForm
-                          onChange={this.handleChange}
-                          onSubmit={this.handleSubmit} {...this.props}  />
-                      </div>
-  }
-}
-
-export default Register
+export default enhance(Register)
