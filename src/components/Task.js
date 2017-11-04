@@ -1,26 +1,28 @@
 import React from 'react';
-import { Button, Card } from 'semantic-ui-react'
+import { Button, Card, Input } from 'semantic-ui-react'
 
-const Task = (props) => {
+const Action = ({nextTask}) => {
+  if (nextTask.requiresInput) {
+    return <Input placeholder='Enter Milk Barcode' action='Submit' />
+  }
   return (
-    <div className="tasks">
-      <style jsx>{`
-        .tasks {}
-      `}</style>
-      <Card>
-        <Card.Content>
-          <Card.Header> {props.nextTask.title} </Card.Header>
-          <Card.Meta> 1 COIN </Card.Meta>
-          <Card.Description> {props.nextTask.description} </Card.Description>
-        </Card.Content>
-         <Card.Content extra>
-        <div className='ui two buttons'>
-          <Button basic color='green' onClick={props.nextTask.action}> Approve</Button>
-        </div>
-      </Card.Content>
-      </Card>
+    <div className='ui two buttons'>
+      <Button basic color='green' onClick={nextTask.action}> Approve </Button>
     </div>
   )
 }
+
+const Task = ({nextTask}) => (
+  <Card fluid>
+    <Card.Content>
+      <Card.Header> {nextTask.title} </Card.Header>
+      <Card.Meta> 1 COIN </Card.Meta>
+      <Card.Description> {nextTask.description} </Card.Description>
+    </Card.Content>
+    <Card.Content extra>
+      <Action nextTask={nextTask} />
+    </Card.Content>
+  </Card>
+)
 
 export default Task;
