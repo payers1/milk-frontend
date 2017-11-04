@@ -71,6 +71,12 @@ export const getContractValues = (contract, account, coin) => {
   })
 }
 
+export const sendCoinFromBobToMilk = (coin, account, web3) => {
+  return P.promisify(coin.transfer)("0xe17ef3c7a9082bb9f4b3f123003e9f3410df2917", 100, {from: account})
+  .then(tx => getTx(tx, web3))
+  .then(logComplete.bind(null, 'contract funded with coins'))
+}
+
 export const getContract = () => fetch(process.env.API + '/contract')
                                   .then((response) => response.json())
 
@@ -85,8 +91,54 @@ export const registerUser = (address, firstName, email) => {
     })
   });
 }
-export const getSellPrice = (currency) => {
+
+export const burnToken = (coin, web3, account) => {
+  return P.promisify(coin.burn)(1, {from: account})
+    .then(tx => getTx(tx, web3))
+    .then(logComplete.bind(null, 'coins burned'))
+}
+
+const getSellPrice = (currency) => {
   return fetch(`https://api.coinbase.com/v2/prices/${currency}-USD/sell`, {
     headers: { 'CB-VERSION': '2015-04-08' }
   })
+  .then(response => response.json())
+}
+
+export const getSellPrices = () => {
+  return P.all([
+    getSellPrice('BTC'),
+    getSellPrice('ETH'),
+    getSellPrice('LTC')
+  ])
+  .reduce((prev, curr) => {
+    const priceInUSD  = parseFloat(curr.data.amount)
+    prev[curr.data.base] = {
+      amount: priceInUSD,
+      rate: 1 / ((priceInUSD) * 4)
+    }
+    return prev;
+  }, {'USD': {amount: 1, rate: 0.25}})
+}
+
+export const getLogs = (address) => {
+  return fetch(process.env.API + `/logs?contract_address=${address}`)
+    .then(response => response.json())
+}
+
+export const getLatestMilkVerifiedDate = (address) => {
+  return fetch(process.env.API + `/latest-milk?contract_address=${address}`)
+    .then(response => response.json())
+}
+
+export const exchange = ({desiredCurrency, amountToSell, accountNumber}) => {
+  return fetch(process.env.API + '/exchange', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      desiredCurrency,
+      amountToSell,
+      accountNumber
+    })
+  });
 }
