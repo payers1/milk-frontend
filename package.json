@@ -3,7 +3,6 @@
   "version": "0.1.0",
   "private": true,
   "devDependencies": {
-    "@storybook/react": "^3.2.13",
     "autoprefixer": "6.5.1",
     "babel-core": "6.17.0",
     "babel-eslint": "7.1.1",
@@ -51,12 +50,16 @@
     "whatwg-fetch": "1.0.0"
   },
   "dependencies": {
+    "@storybook/addon-knobs": "^3.2.14",
+    "@storybook/react": "^3.2.14",
     "bluebird": "^3.5.0",
     "d3-format": "^1.2.0",
     "dotenv": "^2.0.0",
+    "moment": "^2.19.1",
     "react": "^15.4.2",
     "react-dom": "^15.4.2",
     "react-router-dom": "^4.2.2",
+    "recompose": "^0.26.0",
     "rpc-websockets": "^3.4.6",
     "semantic-ui-css": "^2.2.12",
     "semantic-ui-react": "^0.75.1",
