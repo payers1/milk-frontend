@@ -2,11 +2,22 @@ import React, { Component } from 'react'
 import getWeb3 from './utils/getWeb3'
 import {getAccounts, getContract} from './api'
 import './App.css';
+import {
+  BrowserRouter as Router,
+  Route,
+  Redirect
+} from 'react-router-dom';
 
 import P from 'bluebird'
+import { withProps } from 'recompose'
 
 import Main from './Main';
 import Register from './Register';
+
+const PrivateRoute = ({ component: Component, auth, ...rest }) => (
+  <Route {...rest} render={props => auth ? <Component {...props} {...rest} /> : <Redirect to='/register'/>} />
+)
+const Loading = () => <h1>Loading...</h1>
 
 class App extends Component {
     state = {
@@ -16,7 +27,7 @@ class App extends Component {
       web3: {}
     }
 
-  componentWillMount() {
+  componentDidMount() {
     return getWeb3
     .then(({web3}) => {
       this.setState({
@@ -40,19 +51,23 @@ class App extends Component {
   }
 
   render() {
-    const { loading, userAuth, account, web3, coinContract, milkContract } = this.state;
-    if (loading) {
-      return <h1>Loading...</h1>
-    } else if (!userAuth) {
-      return <Register account={account}/>
-    }
-    return (
-      <Main
-        account={account}
-        web3={web3}
-        coin={coinContract}
-        contract={milkContract} />
+    const {
+      loading, userAuth, account, web3, coinContract: coin, milkContract: contract
+    } = this.state;
+    const MainWithProps = withProps(() => ({ account, web3, coin, contract }))(Main)
+    const RegisterRouteComponent = () => userAuth ? <Redirect to='/dashboard' />
+                                                  : <Register account={account} />
+    const RootRouteComponent = () => <Redirect to='/dashboard' />
+    const Routes = () => (
+      <Router>
+        <div>
+          <PrivateRoute exact path="/" component={RootRouteComponent} auth={userAuth} />
+          <Route path="/register" component={RegisterRouteComponent} />
+          <PrivateRoute path="/dashboard" component={MainWithProps} auth={userAuth} />
+        </div>
+      </Router>
     )
+    return loading ? <Loading /> : <Routes />
   }
 }
 
