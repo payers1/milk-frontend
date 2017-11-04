@@ -1,11 +1,12 @@
-import {LogsAlt as Log} from './Logs'
+import Log, {Logs} from './Logs'
 import Metric from './Metric'
-import RegisterForm from './RegisterForm'
 import Task from './Task'
+import Nav from './Nav'
 
 export {
   Log,
+  Logs,
   Metric,
-  RegisterForm,
-  Task
+  Task,
+  Nav
 }
