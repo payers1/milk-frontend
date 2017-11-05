@@ -35,14 +35,14 @@ export const verifyMilkOutage = (account, contract, web3) => {
 }
 
 export const recordGotMilk = (account, contract, web3, code) => {
-  return P.promisify(contract.recordGotMilk)(code || 1, {from: account})
+  return P.promisify(contract.recordGotMilk)(code, {from: account})
     .then(tx => getTx(tx, web3))
     .then(logComplete.bind(null, 'recorded milk purchased'))
     .catch(logError)
 }
 
 export const verifyGotMilk = (account, contract, web3, code) => {
-  return P.promisify(contract.verifyGotMilk)(code || 1, {from: account})
+  return P.promisify(contract.verifyGotMilk)(code, {from: account})
     .then(tx => getTx(tx, web3))
     .then(logComplete.bind(null, 'milk purchase verified'))
     .catch(logError)
@@ -80,7 +80,7 @@ export const sendCoinFromBobToMilk = (coin, account, web3) => {
 export const getContract = () => fetch(process.env.API + '/contract')
                                   .then((response) => response.json())
 
-export const registerUser = (address, firstName, email) => {
+export const registerUser = ({address, firstName, email}) => {
   return fetch(process.env.API + '/register', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },

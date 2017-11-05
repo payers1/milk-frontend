@@ -57,7 +57,7 @@ class Main extends Component {
 
   getNextTask = () => {
     const stage = this.state.stage;
-    const {account, contract, web3, unverifiedMilkBarCode, verifiedMilkBarCode} = this.props;
+    const {account, contract, web3} = this.props;
     let nextTask = {}
     switch (stage) {
       case 'MilkInFullSupply':
@@ -78,7 +78,7 @@ class Main extends Component {
         nextTask = {
           title: 'BUY MILK',
           requiresInput: true,
-          action: recordGotMilk.bind(null, account, contract, web3, unverifiedMilkBarCode)
+          action: recordGotMilk.bind(null, account, contract, web3)
         }
       break;
 
@@ -86,7 +86,7 @@ class Main extends Component {
         nextTask = {
           title: 'VERIFY MILK',
           requiresInput: true,
-          action: verifyGotMilk.bind(null, account, contract, web3, verifiedMilkBarCode)
+          action: verifyGotMilk.bind(null, account, contract, web3)
         }
       break;
       default:
