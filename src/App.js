@@ -13,9 +13,11 @@ import { withProps } from 'recompose'
 
 import Main from './Main';
 import Register from './Register';
+import {Exchange} from './components'
 
 const PrivateRoute = ({ component: Component, auth, ...rest }) => (
-  <Route {...rest} render={props => auth ? <Component {...props} {...rest} /> : <Redirect to='/register'/>} />
+  <Route {...rest} render={props => auth ? <Component {...props} {...rest} />
+                                         : <Redirect to='/register'/>} />
 )
 const Loading = () => <h1>Loading...</h1>
 
@@ -57,6 +59,7 @@ class App extends Component {
     const MainWithProps = withProps(() => ({ account, web3, coin, contract }))(Main)
     const RegisterRouteComponent = () => userAuth ? <Redirect to='/dashboard' />
                                                   : <Register account={account} />
+    const ExchangeFundsRouteComponent = () => userAuth ? <Exchange /> : <Redirect to='/' />
     const RootRouteComponent = () => <Redirect to='/dashboard' />
     const Routes = () => (
       <Router>
@@ -64,6 +67,7 @@ class App extends Component {
           <PrivateRoute exact path="/" component={RootRouteComponent} auth={userAuth} />
           <Route path="/register" component={RegisterRouteComponent} />
           <PrivateRoute path="/dashboard" component={MainWithProps} auth={userAuth} />
+          <Route path='/exchange' component={ExchangeFundsRouteComponent} />
         </div>
       </Router>
     )
