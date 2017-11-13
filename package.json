@@ -67,6 +67,7 @@
     "solc": "^0.4.13",
     "styled-jsx": "^2.1.2",
     "truffle": "^3.4.6",
+    "uport-connect": "^0.7.0",
     "ws": "^3.1.0"
   },
   "scripts": {
