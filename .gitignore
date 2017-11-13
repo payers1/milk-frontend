@@ -3,3 +3,5 @@ build_webpack
 contracts
 migrations
 scrap.*
+.env
+*WIP*
