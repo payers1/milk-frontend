@@ -1,16 +1,13 @@
 import React from 'react'
+import { Statistic, Segment } from 'semantic-ui-react'
 
-const Metric = (props) =>
-  <div className="metric">
-    <div>
-      <style jsx>{`
-        display: flex;
-        justify-content: center;
-        flex-direction: column;
-      `} </style>
-      <h1>{props.metric}</h1>
-      <div>{props.label}</div>
-    </div>
-  </div>
+const Metric = ({metric, label}) => (
+  <Segment size='huge' padded textAlign='center'>
+    <Statistic size='huge' color='grey'>
+      <Statistic.Value content={metric} text />
+      <Statistic.Label content={label} />
+    </Statistic>
+  </Segment>
+)
 
 export default Metric;
