@@ -31,7 +31,6 @@ const CurrencyRow = ({symbol, exchangeRate, price}) => (
 
 const ExchangeRateTable = (props) => (
   <Segment basic loading={props.loading}>
-  <h1> EXCHANGE RATES </h1>
     <Table celled>
       <TableHeader />
       <Table.Body>
