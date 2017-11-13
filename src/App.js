@@ -11,7 +11,7 @@ import { Nav } from './components'
 import { Container } from 'semantic-ui-react'
 
 const Loading = () => <h1>...</h1>
-const NotAuthorized = () => (<h1>Sorry you're not authorized</h1>)
+const NotAuthorized = () => (<h1>Not Authed</h1>)
 
 class App extends Component {
   state = {
