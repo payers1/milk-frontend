@@ -1,10 +1,11 @@
 html {
   font-family: helvetica;
+  background: #F4F7FA;
 }
 
 .App {
   background: #F4F7FA;
-  height: 98vh;
+  min-height: 100vh;
 }
 
 .metric {
@@ -13,11 +14,4 @@ html {
   text-transform: uppercase;
   display: flex;
   justify-content: center;
-}
-
-.register-form {
-  height: 92vh;
-  max-width: 500px;
-  margin: auto;
-  padding-top: 15%;
 }
