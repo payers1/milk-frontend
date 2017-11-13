@@ -11,7 +11,7 @@ export default class MenuExampleBasic extends Component {
       <Menu size='large'>
         <Menu.Item header content='Blockchain Milk' />
         <Menu.Item name='home' active={activeItem === 'home'} onClick={this.handleItemClick} />
-        <Menu.Item position='right' content={this.props.user.name} />
+        <Menu.Item position='right' content={this.props.name} />
       </Menu>
     )
   }

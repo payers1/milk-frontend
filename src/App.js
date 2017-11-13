@@ -1,77 +1,63 @@
 import React, { Component } from 'react'
 import getWeb3 from './utils/getWeb3'
-import {getAccounts, getContract} from './api'
+import uport from './utils/getUport'
+import { handleUportLogin } from './api'
 import './App.css';
-import {
-  BrowserRouter as Router,
-  Route,
-  Redirect
-} from 'react-router-dom';
-
-import P from 'bluebird'
+import 'semantic-ui-css/semantic.min.css';
 import { withProps } from 'recompose'
 
 import Main from './Main';
-import Register from './Register';
-import {Exchange} from './components'
+import { Nav } from './components'
+import { Container } from 'semantic-ui-react'
 
-const PrivateRoute = ({ component: Component, auth, ...rest }) => (
-  <Route {...rest} render={props => auth ? <Component {...props} {...rest} />
-                                         : <Redirect to='/register'/>} />
-)
-const Loading = () => <h1>Loading...</h1>
+const Loading = () => <h1>...</h1>
+const NotAuthorized = () => (<h1>Sorry you're not authorized</h1>)
 
 class App extends Component {
-    state = {
-      loading: true,
-      userAuth: false,
-      account: null,
-      web3: {}
-    }
+  state = {
+    loading: true,
+    account: null,
+    uport: {},
+    name: '',
+    authorized: false
+  }
 
   componentDidMount() {
     return getWeb3
-    .then(({web3}) => {
-      this.setState({
-        web3
+      .then(({web3}) => {
+        this.setState({ web3, uport })
+        return uport.requestCredentials({ requested: ['name', 'email'], notifications: true })
       })
-      return getContract()
-    })
-    .then(async ({coin, milk}) => {
-      const coinContract = this.state.web3.eth.contract(coin.contract.abi).at(coin.location);
-      const milkContract = this.state.web3.eth.contract(milk.contract.abi).at(milk.location)
-      const [account] = await getAccounts(this.state.web3);
-      const userAuth = await P.promisify(milkContract.addressHasAccess)(account)
-      return this.setState({
-        milkContract,
-        account,
-        coinContract,
-        userAuth,
-        loading: false
-      });
-    })
+      .then((uportCredentials) => handleUportLogin(uportCredentials))
+      .then(({ account_address: account, authorized, name }) => {
+        this.setState({ name, account, authorized, loading: false })
+      })
   }
 
   render() {
     const {
-      loading, userAuth, account, web3, coinContract: coin, milkContract: contract
+      authorized,
+      loading,
+      account,
+      uport,
+      name,
+      web3
     } = this.state;
-    const MainWithProps = withProps(() => ({ account, web3, coin, contract }))(Main)
-    const RegisterRouteComponent = () => userAuth ? <Redirect to='/dashboard' />
-                                                  : <Register account={account} />
-    const ExchangeFundsRouteComponent = () => userAuth ? <Exchange /> : <Redirect to='/' />
-    const RootRouteComponent = () => <Redirect to='/dashboard' />
-    const Routes = () => (
-      <Router>
-        <div>
-          <PrivateRoute exact path="/" component={RootRouteComponent} auth={userAuth} />
-          <Route path="/register" component={RegisterRouteComponent} />
-          <PrivateRoute path="/dashboard" component={MainWithProps} auth={userAuth} />
-          <Route path='/exchange' component={ExchangeFundsRouteComponent} />
-        </div>
-      </Router>
+
+    const MainWithProps = withProps({ account, uport, web3 })(Main)
+
+    const App = () => (
+      <div className='App'>
+        <Nav name={name} />
+        <Container>
+          <MainWithProps />
+        </Container>
+      </div>
     )
-    return loading ? <Loading /> : <Routes />
+
+    if (loading) { return <Loading />}
+    else if (!authorized) { return <NotAuthorized /> }
+    else { return <App /> }
   }
 }
 
