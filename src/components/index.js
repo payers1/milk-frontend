@@ -3,6 +3,7 @@ import Metric from './Metric'
 import Task from './Task'
 import Nav from './Nav'
 import Exchange from './Exchange'
+import Step from './Step'
 
 export {
   Log,
@@ -10,5 +11,6 @@ export {
   Metric,
   Task,
   Nav,
-  Exchange
+  Exchange,
+  Step
 }
