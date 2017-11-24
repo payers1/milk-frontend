@@ -2,7 +2,7 @@ import React from 'react'
 import ExchangeRateTable from './ExchangeRateTable'
 import ExchangeFundsForm from './ExchangeForm'
 
-const Exchange = () => (
+const Exchange = (props) => (
   <div className='exchange'>
     <style jsx>{`
       .exchange {
@@ -10,7 +10,7 @@ const Exchange = () => (
       }
     `}</style>
       <ExchangeRateTable />
-      <ExchangeFundsForm />
+      <ExchangeFundsForm user={props.user} />
   </div>
 )
 
