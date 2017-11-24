@@ -3,53 +3,61 @@ import { Button, Card, Input, Form } from 'semantic-ui-react'
 import { compose, withState, withHandlers } from 'recompose'
 
 const enhance = compose(
-  withState('barcode', 'setBarcode', undefined),
+  withState('state', 'setState', undefined),
   withState('loading', 'setLoading', false),
   withHandlers({
-    onChange: props => event => {
-      props.setBarcode(event.target.value)
-    },
+    onChange: props => (event, data) => props.setState(data.value),
     onSubmit: props => async event => {
       props.setLoading(true)
       event.preventDefault()
-      await props.nextTask.action.bind(null, props.barcode)()
+      let actionArgs = {
+        arg: props.state,
+        web3: props.web3,
+        contract: props.contract
+      }
+      let action = props.nextTask.action.bind(null, actionArgs)
+      await action()
       props.setLoading(false)
-      props.setBarcode('')
     }
   })
 )
 
-const ActionDisplay = ({nextTask, onSubmit, onChange, barcode, loading}) => {
-  if (nextTask.requiresInput) {
+const ActionDisplay = ({nextTask, onSubmit, onChange, state, loading, contract, web3}) => {
+  if (nextTask.requiresInput && !nextTask.InputComponent) {
     return <Form onSubmit={onSubmit}>
       <Input fluid
         type="number"
         loading={loading}
         disabled={loading}
         onChange={onChange}
-        value={barcode}
+        value={state}
         placeholder='Enter Milk Barcode'
         action='Submit' />
     </Form>
+  } else if (nextTask.requiresInput && nextTask.InputComponent) {
+    return <Form onSubmit={onSubmit}>
+      <nextTask.InputComponent
+        loading={loading}
+        disabled={loading}
+        onChange={onChange} />
+    </Form>
   }
   return (
-    <div className='ui two buttons'>
-      <Button basic color='green' onClick={nextTask.action}> Submit </Button>
-    </div>
+    <Button fluid inverted color='green' loading={loading} content='Submit' onClick={onSubmit} />
   )
 }
 
 const Action = enhance(ActionDisplay)
 
-const Task = ({nextTask}) => (
+const Task = ({nextTask, web3, contract, admin, userRole}) => (
   <Card fluid>
     <Card.Content>
       <Card.Header> {nextTask.title} </Card.Header>
-      <Card.Meta> {nextTask.title} </Card.Meta>
+      <Card.Meta> {nextTask.reward} </Card.Meta>
       <Card.Description> {nextTask.description} </Card.Description>
     </Card.Content>
     <Card.Content extra>
-      <Action nextTask={nextTask} />
+      <Action nextTask={nextTask} contract={contract} web3={web3} />
     </Card.Content>
   </Card>
 )
