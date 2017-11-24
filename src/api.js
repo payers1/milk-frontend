@@ -3,14 +3,7 @@ import P from 'bluebird';
 const logError = e => console.log(e)
 const logComplete = (block, message) => console.log(block, message)
 
-const STAGES = {
-  0: 'MilkInFullSupply',
-  1: 'MilkOutageUnverified',
-  2: 'MilkOutageVerified',
-  3: 'MilkPurchasedUnverified'
-}
-
-export const getAccounts = web3 => P.promisify(web3.eth.getAccounts)()
+import { stages } from './stages';
 
 const getTx = (txHash, web3) => {
   return P.promisify(web3.eth.getTransaction)(txHash)
@@ -20,77 +13,76 @@ const getTx = (txHash, web3) => {
     .catch(logError)
 }
 
-export const recordMilkOutage = (account, contract, web3) => {
-  return P.promisify(contract.recordMilkOutage)({from: account})
-    .then((txHash) => getTx(txHash, web3))
+export const recordMilkOutage = ({contract, web3}) => {
+  return contract.uport.recordMilkOutage()
+    .then(tx => getTx(tx, web3))
     .then(logComplete.bind(null, 'recorded milk outage'))
     .catch(logError)
 }
 
-export const verifyMilkOutage = (account, contract, web3) => {
-  return P.promisify(contract.verifyMilkOutage)({from: account})
+export const verifyMilkOutage = ({contract, web3}) => {
+  return contract.uport.verifyMilkOutage()
     .then(tx => getTx(tx, web3))
     .then(logComplete.bind(null, 'verified milk outage'))
     .catch(logError)
 }
 
-export const recordGotMilk = (account, contract, web3, code) => {
-  return P.promisify(contract.recordGotMilk)(code, {from: account})
-    .then(tx => getTx(tx, web3))
-    .then(logComplete.bind(null, 'recorded milk purchased'))
-    .catch(logError)
+export const recordGotMilk = ({contract, web3, arg}) => {
+  return contract.uport.recordGotMilk(arg)
+  .then(tx => getTx(tx, web3))
+  .then(logComplete.bind(null, 'recorded milk purchased'))
+  .catch(logError)
 }
 
-export const verifyGotMilk = (account, contract, web3, code) => {
-  return P.promisify(contract.verifyGotMilk)(code, {from: account})
+export const verifyGotMilk = ({contract, web3, arg}) => {
+  return contract.uport.verifyGotMilk(arg)
     .then(tx => getTx(tx, web3))
     .then(logComplete.bind(null, 'milk purchase verified'))
     .catch(logError)
 }
 
+export const voteForMilk = ({contract, web3, arg}) => {
+  return contract.uport.vote(arg)
+  .then(tx => getTx(tx, web3))
+  .then(logComplete.bind(null, 'voted for milk'))
+  .catch(logError)
+}
+
 export const getContractValues = (contract, account, coin) => {
   const contractAsync = P.promisifyAll(contract);
-  const coinAsync = P.promisify(coin.balanceOf);
+  const coinAsync = P.promisifyAll(coin);
   return P.all([
     contractAsync.outOfMilkAsync(),
-    contractAsync.milkOutageVerifiedAsync(),
-    contractAsync.milkOutageNotifierAsync(),
-    contractAsync.milkOutageVerifierAsync(),
-    coinAsync(account),
+    coinAsync.balanceOfAsync(account),
     contractAsync.stageAsync(),
-    P.promisify(coin.totalSupply)()
+    coinAsync.totalSupplyAsync(),
+    coinAsync.balanceOfAsync(contract.address),
+    coinAsync.ownerAsync(),
+    coinAsync.coinOwnerBalanceAsync()
   ])
-  .spread((outOfMilk, milkOutageVerified, notifier, verifier, coin2, stage, totalSupply) => {
+  .spread(async (outOfMilk, coinBalance, stage, totalSupply, contractCoinBalance, coinOwner, coinOwnerBal) => {
     return {
       outOfMilk,
-      milkOutageVerified,
-      coinBalance: coin2.toString(),
-      stage: STAGES[stage.toString()],
-      totalSupply: totalSupply.toString()
+      coinBalance: coinBalance.toString(),
+      stage: stages.find(s => s.index === stage.toNumber()),
+      totalSupply: totalSupply.toString(),
+      contractCoinBalance: contractCoinBalance.toString(),
+      coinOwner,
+      coinOwnerBalance: coinOwnerBal.toString()
     }
   })
 }
 
-export const sendCoinFromBobToMilk = (coin, account, web3) => {
-  return P.promisify(coin.transfer)("0xe17ef3c7a9082bb9f4b3f123003e9f3410df2917", 100, {from: account})
+export const fundMilkContract = ({coin, address, account, web3, amount}) => {
+  return P.promisify(coin.transfer)(address, amount.arg, {from: account})
   .then(tx => getTx(tx, web3))
   .then(logComplete.bind(null, 'contract funded with coins'))
+  .catch(logError)
 }
 
 export const getContract = () => fetch(process.env.API + '/contract')
                                   .then((response) => response.json())
 
-export const registerUser = ({address, firstName, email}) => {
-  return fetch(process.env.API + '/register', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      address,
-      firstName,
-      email
-    })
-  });
-}
 
 export const burnToken = (coin, web3, account) => {
   return P.promisify(coin.burn)(1, {from: account})
@@ -115,30 +107,37 @@ export const getSellPrices = () => {
     const priceInUSD  = parseFloat(curr.data.amount)
     prev[curr.data.base] = {
       amount: priceInUSD,
-      rate: 1 / ((priceInUSD) * 4)
+      rate: 1 / ((priceInUSD + 2) * 4)
     }
     return prev;
   }, {'USD': {amount: 1, rate: 0.25}})
 }
 
-export const getLogs = (address) => {
-  return fetch(process.env.API + `/logs?contract_address=${address}`)
-    .then(response => response.json())
+export const grantUserAccess = ({contract, web3, address}) => {
+  return P.promisify(contract.local.grantAccess)(address.arg, {from: web3.eth.accounts[0]})
+  .then(tx => getTx(tx, web3))
+  .then(logComplete.bind(null, 'user granted access'))
 }
 
-export const getLatestMilkVerifiedDate = (address) => {
-  return fetch(process.env.API + `/latest-milk?contract_address=${address}`)
-    .then(response => response.json())
-}
-
-export const exchange = ({desiredCurrency, amountToSell, accountNumber}) => {
+export const exchange = ({desiredCurrency, amountToSell, accountNumber, user}) => {
   return fetch(process.env.API + '/exchange', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
       desiredCurrency,
       amountToSell,
-      accountNumber
+      accountNumber,
+      user
     })
   });
+}
+
+export const handleUportLogin = (creds) => {
+  return fetch(process.env.API + '/login', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(creds)
+  })
+  .then(response => response.json())
+  .catch(e => console.log('err', e))
 }
