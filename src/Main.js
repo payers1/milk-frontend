@@ -1,58 +1,73 @@
 import React, { Component } from 'react'
-import { Metric } from './components';
+import {
+  Metric as MetricDisplay,
+  Task as TaskDisplay,
+  Step as StageDisplay,
+  Exchange as ExchangeDisplay
+} from './components';
 
 import {
   getContractValues,
   getContract
 } from './api';
 
+import withColumn from './utils/withColumn'
+
 import { Grid } from 'semantic-ui-react'
+
+const Metric = withColumn(MetricDisplay)
+const Task = withColumn(TaskDisplay, 5)
+const Step = withColumn(StageDisplay)
+const Exchange = withColumn(ExchangeDisplay, 9)
 
 class Main extends Component {
   state = {
     contract: {},
-    coin: {}
+    coin: {},
+    stage: {task: {}}
   }
 
   async componentDidMount() {
-    let { uport, web3 } = this.props
+    const { uport } = this.props
     const { coin, milk } = await getContract()
-    console.log(uport, web3);
-    const localWeb3 = uport.isOnMobile ? uport.getWeb3() : web3
-
     this.setState({
-      coin: localWeb3.eth.contract(coin.contract.abi).at(coin.location),
-      contract: localWeb3.eth.contract(milk.contract.abi).at(milk.location)
+      coin: {
+        local: uport.getWeb3().eth.contract(coin.contract.abi).at(coin.location),
+        uport: uport.contract(coin.contract.abi).at(coin.location),
+      },
+      contract: {
+        local: uport.getWeb3().eth.contract(milk.contract.abi).at(milk.location),
+        uport: uport.contract(milk.contract.abi).at(milk.location)
+      }
     })
-
     this.getContractValues()
-    // this.setupWatchers()
   }
 
   getContractValues = async () => {
     const { contract, coin } = this.state
-    const { account } = this.props
-    const vals = await getContractValues(contract, account, coin)
+    const vals = await getContractValues(contract.local, this.props.uPortAccount, coin.local)
     this.setState(vals);
   }
 
-  setupWatchers = () => {
-    const { contract, coin } = this.state
-    contract.allEvents().watch((err, evt) => console.log('all events', err, evt));
-    coin.allEvents().watch((err, evt) => console.log('coin events', err, evt));
-  }
-
   render() {
-    const { outOfMilk, coinBalance } = this.state
+    const { coinBalance, stage, contract, totalSupply, contractCoinBalance, coinOwnerBalance } = this.state;
     return (
       <Grid stackable>
         <Grid.Row columns={2}>
-          <Grid.Column>
-            <Metric metric={outOfMilk ? 'EMPTY' : 'FULL'} label="Milk Status" />
-          </Grid.Column>
-          <Grid.Column>
-            <Metric metric={`${coinBalance} Coins`} label="Balance" />
-          </Grid.Column>
+          <Metric metric={stage.title} label="Stage" />
+          <Metric metric={`${coinBalance} Coins`} label="My Balance" />
+        </Grid.Row>
+        <Grid.Row>
+          <Step stage={stage} />
+        </Grid.Row>
+        <Grid.Row columns={3}>
+          <Metric metric={totalSupply} label='Total Supply' />
+          <Metric metric={contractCoinBalance} label='Contract Coin Balance' />
+          <Metric metric={coinOwnerBalance} label='Coin Owner Balance' />
+        </Grid.Row>
+        <Grid.Row>
+          <Task nextTask={stage.task} contract={contract} web3={this.props.uport.getWeb3()} />
+          <Exchange user={this.props.name} />
         </Grid.Row>
       </Grid>
     );
