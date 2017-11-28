@@ -7,9 +7,9 @@ import { stages } from './stages';
 
 const getTx = (txHash, web3) => {
   return P.promisify(web3.eth.getTransaction)(txHash)
-    .then((b) => {
-      return !b.blockNumber ? P.delay(500).then(() => getTx(txHash, web3)): b;
-    })
+    .then((b) => (
+      !b.blockNumber ? P.delay(500).then(() => getTx(txHash, web3)): b
+    ))
     .catch(logError)
 }
 
