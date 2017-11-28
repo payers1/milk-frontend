@@ -15,7 +15,7 @@ const enhance = compose(
         web3: props.web3,
         contract: props.contract
       }
-      let action = props.nextTask.action.bind(null, actionArgs)
+      const action = props.nextTask.action.bind(null, actionArgs)
       await action()
       props.setLoading(false)
     }
