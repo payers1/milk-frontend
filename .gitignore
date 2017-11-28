@@ -5,3 +5,5 @@ migrations
 scrap.*
 .env
 *WIP*
+*-old.js
+accounts.txt
