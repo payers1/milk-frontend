@@ -13,4 +13,4 @@ RUN yarn build
 
 FROM nginx AS release
 COPY default.conf /etc/nginx/conf.d/
-COPY build_webpack /var/www/html
+COPY --from=build /var/www/build_webpack /var/www/html
