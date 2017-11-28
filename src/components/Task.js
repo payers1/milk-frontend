@@ -10,7 +10,7 @@ const enhance = compose(
     onSubmit: props => async event => {
       props.setLoading(true)
       event.preventDefault()
-      let actionArgs = {
+      const actionArgs = {
         arg: props.state,
         web3: props.web3,
         contract: props.contract
