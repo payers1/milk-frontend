@@ -14,81 +14,52 @@ const getTx = (txHash, web3) => {
 }
 
 export const recordMilkOutage = ({contract, web3}) => {
-  return contract.uport.recordMilkOutage()
+  return contract.recordMilkOutage()
     .then(tx => getTx(tx, web3))
     .then(logComplete.bind(null, 'recorded milk outage'))
     .catch(logError)
 }
 
 export const verifyMilkOutage = ({contract, web3}) => {
-  return contract.uport.verifyMilkOutage()
+  return contract.verifyMilkOutage()
     .then(tx => getTx(tx, web3))
     .then(logComplete.bind(null, 'verified milk outage'))
     .catch(logError)
 }
 
 export const recordGotMilk = ({contract, web3, arg}) => {
-  return contract.uport.recordGotMilk(arg)
+  return contract.recordGotMilk(arg)
   .then(tx => getTx(tx, web3))
   .then(logComplete.bind(null, 'recorded milk purchased'))
   .catch(logError)
 }
 
 export const verifyGotMilk = ({contract, web3, arg}) => {
-  return contract.uport.verifyGotMilk(arg)
+  return contract.verifyGotMilk(arg)
     .then(tx => getTx(tx, web3))
     .then(logComplete.bind(null, 'milk purchase verified'))
     .catch(logError)
 }
 
 export const voteForMilk = ({contract, web3, arg}) => {
-  return contract.uport.vote(arg)
+  return contract.vote(arg)
   .then(tx => getTx(tx, web3))
   .then(logComplete.bind(null, 'voted for milk'))
   .catch(logError)
 }
 
-export const getContractValues = (contract, account, coin) => {
-  const contractAsync = P.promisifyAll(contract);
-  const coinAsync = P.promisifyAll(coin);
-  return P.all([
-    contractAsync.outOfMilkAsync(),
-    coinAsync.balanceOfAsync(account),
-    contractAsync.stageAsync(),
-    coinAsync.totalSupplyAsync(),
-    coinAsync.balanceOfAsync(contract.address),
-    coinAsync.ownerAsync(),
-    coinAsync.coinOwnerBalanceAsync()
-  ])
-  .spread(async (outOfMilk, coinBalance, stage, totalSupply, contractCoinBalance, coinOwner, coinOwnerBal) => {
-    return {
-      outOfMilk,
-      coinBalance: coinBalance.toString(),
-      stage: stages.find(s => s.index === stage.toNumber()),
-      totalSupply: totalSupply.toString(),
-      contractCoinBalance: contractCoinBalance.toString(),
-      coinOwner,
-      coinOwnerBalance: coinOwnerBal.toString()
-    }
-  })
-}
-
-export const fundMilkContract = ({coin, address, account, web3, amount}) => {
-  return P.promisify(coin.transfer)(address, amount.arg, {from: account})
-  .then(tx => getTx(tx, web3))
-  .then(logComplete.bind(null, 'contract funded with coins'))
-  .catch(logError)
+export const getContractValues = (account) => {
+  return P.resolve(fetch(process.env.API + `/contract-values?account=${account}`))
+          .then((response) => response.json())
+          .tap(console.log)
+          .then(response => {
+            response.stage = stages.find(s => s.index === response.stage)
+            return response;
+          })
 }
 
 export const getContract = () => fetch(process.env.API + '/contract')
                                   .then((response) => response.json())
-
-
-export const burnToken = (coin, web3, account) => {
-  return P.promisify(coin.burn)(1, {from: account})
-    .then(tx => getTx(tx, web3))
-    .then(logComplete.bind(null, 'coins burned'))
-}
 
 const getSellPrice = (currency) => {
   return fetch(`https://api.coinbase.com/v2/prices/${currency}-USD/sell`, {
@@ -111,12 +82,6 @@ export const getSellPrices = () => {
     }
     return prev;
   }, {'USD': {amount: 1, rate: 0.25}})
-}
-
-export const grantUserAccess = ({contract, web3, address}) => {
-  return P.promisify(contract.local.grantAccess)(address.arg, {from: web3.eth.accounts[0]})
-  .then(tx => getTx(tx, web3))
-  .then(logComplete.bind(null, 'user granted access'))
 }
 
 export const exchange = ({desiredCurrency, amountToSell, accountNumber, user}) => {

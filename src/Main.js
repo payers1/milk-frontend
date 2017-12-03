@@ -31,21 +31,14 @@ class Main extends Component {
     const { uport } = this.props
     const { coin, milk } = await getContract()
     this.setState({
-      coin: {
-        local: uport.getWeb3().eth.contract(coin.contract.abi).at(coin.location),
-        uport: uport.contract(coin.contract.abi).at(coin.location),
-      },
-      contract: {
-        local: uport.getWeb3().eth.contract(milk.contract.abi).at(milk.location),
-        uport: uport.contract(milk.contract.abi).at(milk.location)
-      }
+      coin: uport.contract(coin.contract.abi).at(coin.location),
+      contract: uport.contract(milk.contract.abi).at(milk.location)
     })
     this.getContractValues()
   }
 
   getContractValues = async () => {
-    const { contract, coin } = this.state
-    const vals = await getContractValues(contract.local, this.props.uPortAccount, coin.local)
+    const vals = await getContractValues(this.props.uPortAccount)
     this.setState(vals);
   }
 
