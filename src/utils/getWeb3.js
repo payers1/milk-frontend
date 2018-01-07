@@ -17,8 +17,7 @@ const getWeb3 = new Promise(function(resolve, reject) {
     }
     else {
       // Fallback to localhost if no web3 injection.
-      const provider = new Web3.providers.HttpProvider('http://174.138.63.10:8545')
-      web3 = new Web3(provider)
+      web3 = new Web3('ws://174.138.63.10:8546')
       results = {
         web3: web3
       }
