@@ -8,7 +8,7 @@ const mnid = require('mnid')
 const withUport = (Component) => class extends React.Component {
   state = { uport: null }
   async componentDidMount() {
-    const inFifteenMinutes = new Date(new Date().getTime() + 5 * 60 * 1000);
+    const inFifteenMinutes = new Date(new Date().getTime() + 15 * 60 * 1000);
     const uportCreds = Cookie.get('uport_creds') && JSON.parse(Cookie.get('uport_creds'));
     if (window.location.hash) {
       const hash = qs.parse(window.location.hash.slice(1));
