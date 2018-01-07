@@ -7,15 +7,10 @@ import Main from './Main';
 import { Nav } from './components'
 import { Container } from 'semantic-ui-react'
 
-const App = (props) => (
+const App = ({name, uport, uPortAccount}) => (
   <div className='App'>
-    <Nav name={props.name} />
-    <Container>
-      <Main
-        uport={props.uport}
-        uPortAccount={props.uPortAccount}
-      />
-    </Container>
+    <Nav name={name} />
+    <Container content={ <Main uport={uport} uPortAccount={uPortAccount} /> } />
   </div>
 )
 export default withUport(App)
