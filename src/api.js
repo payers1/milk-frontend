@@ -41,13 +41,6 @@ export const verifyGotMilk = ({contract, web3, arg}) => {
     .catch(logError)
 }
 
-export const voteForMilk = ({contract, web3, arg}) => {
-  return contract.vote(arg)
-  .then(tx => getTx(tx, web3))
-  .then(logComplete.bind(null, 'voted for milk'))
-  .catch(logError)
-}
-
 export const getContractValues = (account) => {
   return P.resolve(fetch(process.env.API + `/contract-values?account=${account}`))
           .then((response) => response.json())

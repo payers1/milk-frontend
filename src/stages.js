@@ -1,13 +1,9 @@
-import React from 'react'
 import {
   verifyMilkOutage,
   verifyGotMilk,
   recordGotMilk,
-  recordMilkOutage,
-  voteForMilk
+  recordMilkOutage
 } from './api'
-
-import { Grid, Dropdown, Button} from 'semantic-ui-react'
 
 export const stages = [
  {
@@ -37,37 +33,6 @@ export const stages = [
  },
  {
    index: 2,
-   key: 'VotingOnMilkOpen',
-   title: 'Vote',
-   icon: 'comments outline',
-   description: '',
-   task: {
-    title: 'Vote On Milk',
-    reward: '0 BDC',
-    description: 'Vote On Milk',
-    requiresInput: true,
-    InputComponent: (props) =>
-    <Grid>
-    <Grid.Row>
-      <Grid.Column width={10}>
-      <Dropdown action='Vote' button basic fluid defaultValue='almond' options={[
-        {text: 'Almond Milk', value: 'almond'},
-        {text: 'Soy Milk', value: 'soy'},
-        {text: 'Whole Milk', value: 'whole'},
-        {text: '2% Milk', value: 'two'},
-        {text: 'Skim Milk', value: 'skim'}
-      ]} {...props} />
-      </Grid.Column>
-      <Grid.Column>
-      <Button basic color='green'> VOTE </Button>
-    </Grid.Column>
-    </Grid.Row>
-    </Grid>,
-    action: (args) => voteForMilk(args)
-   }
- },
- {
-   index: 3,
    key: 'AwaitingMilkPurchase',
    title: 'Purchase Milk',
    icon: 'cart',
@@ -75,14 +40,14 @@ export const stages = [
    task: {
     title: 'Record Milk Purchase',
     action_description: '',
-    action: (args) => { console.log(args); recordGotMilk(args) },
+    action: (args) => recordGotMilk(args),
     reward: '10 BDC',
     description: 'Record the barcode of the milk you purchased',
     requiresInput: true
    }
  },
  {
-   index: 4,
+   index: 3,
    key: 'MilkPurchasedUnverified',
    icon: 'checkmark',
    title: 'Verify Milk',
