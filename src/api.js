@@ -1,9 +1,9 @@
 import P from 'bluebird';
+import { stages } from './stages';
 
 const logError = e => console.log(e)
 const logComplete = (block, message) => console.log(block, message)
 
-import { stages } from './stages';
 
 const getTx = (txHash, web3) => {
   return P.promisify(web3.eth.getTransaction)(txHash)
@@ -42,7 +42,7 @@ export const verifyGotMilk = ({contract, web3, arg}) => {
 }
 
 export const getContractValues = (account) => {
-  return P.resolve(fetch(process.env.API + `/contract-values?account=${account}`))
+  return P.resolve(fetch(process.env.REACT_APP_API + `/contract-values?account=${account}`))
           .then((response) => response.json())
           .tap(console.log)
           .then(response => {
@@ -51,7 +51,7 @@ export const getContractValues = (account) => {
           })
 }
 
-export const getContract = () => fetch(process.env.API + '/contract')
+export const getContract = () => fetch(process.env.REACT_APP_API + '/contract')
                                   .then((response) => response.json())
 
 const getSellPrice = (currency) => {
@@ -78,7 +78,7 @@ export const getSellPrices = () => {
 }
 
 export const exchange = ({desiredCurrency, amountToSell, accountNumber, user}) => {
-  return fetch(process.env.API + '/exchange', {
+  return fetch(process.env.REACT_APP_API + '/exchange', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
@@ -91,7 +91,7 @@ export const exchange = ({desiredCurrency, amountToSell, accountNumber, user}) =
 }
 
 export const handleUportLogin = (creds) => {
-  return fetch(process.env.API + '/login', {
+  return fetch(process.env.REACT_APP_API + '/login', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(creds)

@@ -1,9 +1,11 @@
+build
 node_modules
 build_webpack
 contracts
 migrations
 scrap.*
 .env
+.env.production
 *WIP*
 *-old.js
 accounts.txt

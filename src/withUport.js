@@ -1,8 +1,9 @@
 import React from 'react'
 import uport from './utils/getUport'
 import Cookie from 'js-cookie';
-const qs = require('qs');
 import { handleUportLogin } from './api'
+
+const qs = require('qs');
 const mnid = require('mnid')
 
 const withUport = (Component) => class extends React.Component {
