@@ -41,7 +41,7 @@ export const stages = [
     title: 'Record Milk Purchase',
     action_description: '',
     action: (args) => recordGotMilk(args),
-    reward: '10 BDC',
+    reward: '12 BDC',
     description: 'Record the barcode of the milk you purchased',
     requiresInput: true
    }

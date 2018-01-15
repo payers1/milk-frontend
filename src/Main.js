@@ -12,6 +12,7 @@ import {
 } from './api';
 
 import withColumn from './utils/withColumn'
+import getWeb3 from './utils/getWeb3'
 
 import { Grid } from 'semantic-ui-react'
 
