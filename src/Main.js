@@ -20,6 +20,8 @@ const Metric = withColumn(MetricDisplay)
 const Task = withColumn(TaskDisplay, 5)
 const Step = withColumn(StageDisplay)
 const Exchange = withColumn(ExchangeDisplay, 9)
+const isDev = process.env.NODE_ENV === 'development'
+const isProd = !isDev
 
 class Main extends Component {
   state = {
@@ -31,20 +33,35 @@ class Main extends Component {
   async componentDidMount() {
     const { uport } = this.props
     const { coin, milk } = await getContract()
+    const { web3 } = isProd ? uport.getWeb3() : await getWeb3
     this.setState({
-      coin: uport.contract(coin.contract.abi).at(coin.location),
-      contract: uport.contract(milk.contract.abi).at(milk.location)
+      web3,
+      coin: isProd ? uport.contract(coin.contract.abi).at(coin.location) :
+                     new web3.eth.Contract(coin.contract.abi, coin.location),
+      contract: isProd ? uport.contract(milk.contract.abi).at(milk.location) :
+                         new web3.eth.Contract(milk.contract.abi, milk.location)
     })
     this.getContractValues()
   }
 
   getContractValues = async () => {
-    const vals = await getContractValues(this.props.uPortAccount)
+    const accounts = await this.state.web3.eth.getAccounts()
+    const account = !isProd ? accounts[0] : this.props.uPortAccount
+    const vals = await getContractValues(account)
     this.setState(vals);
   }
 
   render() {
-    const { coinBalance, stage, contract, totalSupply, contractCoinBalance, coinOwnerBalance } = this.state;
+    const {
+      coinBalance,
+      stage,
+      contract,
+      totalSupply,
+      contractCoinBalance,
+      coinOwnerBalance,
+      web3,
+      hasAccess
+    } = this.state;
     return (
       <Grid stackable>
         <Grid.Row columns={2}>
@@ -60,8 +77,8 @@ class Main extends Component {
           <Metric metric={coinOwnerBalance} label='Coin Owner Balance' />
         </Grid.Row>
         <Grid.Row>
-          <Task nextTask={stage.task} contract={contract} web3={this.props.uport.getWeb3()} />
-          <Exchange user={this.props.name} />
+          <Task nextTask={stage.task} contract={contract} web3={web3} />
+          <Exchange user={this.props.name} hasAccess={hasAccess} />
         </Grid.Row>
       </Grid>
     );
